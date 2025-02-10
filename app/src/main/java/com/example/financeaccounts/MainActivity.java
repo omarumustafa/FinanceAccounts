@@ -1,5 +1,6 @@
 package com.example.financeaccounts;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -23,7 +24,25 @@ public class MainActivity extends AppCompatActivity {
         });
         CDaccount myCd = new CDaccount(1001, 5000.00, 2.5);
         Log.d("TEST", myCd.toString());
+
+        CheckingAccount myChecking = new CheckingAccount(1002, 1000.00);
+        Log.d("TEST", myChecking.toString());
+
+        LoanAccount myLoan = new LoanAccount(1003, 10000.00, 5.0, 500.00);
+        Log.d("TEST", myLoan.toString());
+
+        FinanceDBHelper dbHelper = new FinanceDBHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        if (db != null) {
+            Log.d("DB_TEST", "Database created successfully.");
+        } else {
+            Log.d("DB_TEST", "Database creation failed.");
+        }
     }
 
 
-}
+
+    }
+
+
