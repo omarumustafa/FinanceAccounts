@@ -1,8 +1,11 @@
 package com.example.financeaccounts;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private Button btnAddAccount;
+    private Button btnViewAccounts;
     private FinanceDataSource financeDataSource;
 
     @Override
@@ -42,55 +47,30 @@ public class MainActivity extends AppCompatActivity {
         financeDataSource.open();
 
 
-        // Insert sample accounts for testing
-        insertSampleData();
+        btnAddAccount = findViewById(R.id.btnAddAccount);
+        btnViewAccounts = findViewById(R.id.btnViewAccounts);
 
-        // Retrieve and log stored data
-        retrieveAndLogData();
+        // Open Account Entry Screen
+        btnAddAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AccountEntryActivity.class);
+                startActivity(intent);
+            }
+        });
 
-        // Close database
-        financeDataSource.close();
-
+        // Open View Accounts Screen
+        btnViewAccounts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ViewAccountsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
-    private void insertSampleData() {
-        // Insert CD Account
-        CDaccount cd = new CDaccount(101, 5000.0, 2.5);
-        boolean cdInserted = financeDataSource.insertCDAccount(cd);
-        Log.d("DB_TEST", "Inserted CD Account: " + cdInserted);
-
-        // Insert Loan Account
-        LoanAccount loan = new LoanAccount(201, 10000.0, 5.0, 500.0);
-        boolean loanInserted = financeDataSource.insertLoanAccount(loan);
-        Log.d("DB_TEST", "Inserted Loan Account: " + loanInserted);
-
-        // Insert Checking Account
-        CheckingAccount checking = new CheckingAccount(301, 2500.0);
-        boolean checkingInserted = financeDataSource.insertCheckingAccount(checking);
-        Log.d("DB_TEST", "Inserted Checking Account: " + checkingInserted);
-    }
-
-    private void retrieveAndLogData() {
-        // Retrieve and log CD accounts
-        List<CDaccount> cdAccounts = financeDataSource.getAllCDAccounts();
-        for (CDaccount cd : cdAccounts) {
-            Log.d("DB_TEST", "CD: " + cd.toString());
-        }
-
-        // Retrieve and log Loan accounts
-        List<LoanAccount> loanAccounts = financeDataSource.getAllLoanAccounts();
-        for (LoanAccount loan : loanAccounts) {
-            Log.d("DB_TEST", "Loan: " + loan.toString());
-        }
-
-        // Retrieve and log Checking accounts
-        List<CheckingAccount> checkingAccounts = financeDataSource.getAllCheckingAccounts();
-        for (CheckingAccount checking : checkingAccounts) {
-            Log.d("DB_TEST", "Checking: " + checking.toString());
-        }
-    }
+}
 
 
 
-    }
 
 
