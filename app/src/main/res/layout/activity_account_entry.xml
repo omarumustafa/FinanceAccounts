@@ -18,29 +18,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- RadioGroup for Account Types -->
     <RadioGroup
         android:id="@+id/radioGroupAccountType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/tvSelectAccountType"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="12dp">
 
+        <RadioButton
+            android:id="@+id/radioCD"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CD Account" />
+
+        <RadioButton
+            android:id="@+id/radioLoan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loan Account" />
+
+        <RadioButton
+            android:id="@+id/radioChecking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Checking Account" />
     </RadioGroup>
 
-    <!-- Common Fields -->
-
-    <!-- CD & Loan Fields -->
-
+    <!-- Account Entry Fields -->
     <EditText
         android:id="@+id/etAccountNumber"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="268dp"
+        android:layout_marginTop="20dp"
         android:hint="Account Number"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/radioGroupAccountType" />
 
@@ -48,51 +64,47 @@
         android:id="@+id/etBalance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="12dp"
         android:hint="Initial Balance"
         android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etAccountNumber" />
 
+    <!-- Fields shown based on selection -->
     <EditText
         android:id="@+id/etInterestRate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Interest Rate (%)"
         android:inputType="numberDecimal"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/etBalance"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etBalance" />
 
-    <!-- Loan Fields -->
     <EditText
         android:id="@+id/etPayment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Monthly Payment"
         android:inputType="numberDecimal"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/etInterestRate"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etInterestRate" />
 
     <!-- Save & Cancel Buttons -->
-
     <Button
         android:id="@+id/btnSave"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="144dp"
-
+        android:layout_marginTop="20dp"
         android:text="Save"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etPayment" />
 
@@ -100,48 +112,21 @@
         android:id="@+id/btnCancel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-
         android:text="Cancel"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSave"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnSave" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <RadioButton
-        android:id="@+id/radioChecking"
+    <!-- Home Button -->
+    <Button
+        android:id="@+id/btnHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Checking Account"
-        app:layout_constraintBottom_toTopOf="@+id/etAccountNumber"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Home"
+        app:layout_constraintTop_toBottomOf="@+id/btnCancel"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioLoan"
-        app:layout_constraintVertical_bias="0.625" />
-
-    <RadioButton
-        android:id="@+id/radioCD"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CD Account"
-        app:layout_constraintBottom_toTopOf="@+id/etAccountNumber"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvSelectAccountType"
-        app:layout_constraintVertical_bias="0.111" />
-
-    <RadioButton
-        android:id="@+id/radioLoan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Loan Account"
-        app:layout_constraintBottom_toTopOf="@+id/etAccountNumber"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioCD"
-        app:layout_constraintVertical_bias="0.196" />
-
+        android:layout_marginTop="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

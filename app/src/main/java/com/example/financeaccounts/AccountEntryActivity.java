@@ -1,7 +1,11 @@
 package com.example.financeaccounts;
 
+
+
+
+
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,80 +14,80 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class AccountEntryActivity extends AppCompatActivity {
-    private EditText etAccountNumber;
-    private EditText etBalance;
-    private EditText etInterestRate;
-    private EditText etPayment;
-    private Button btnSave;
-    private Button btnCancel;
-    private RadioGroup radioGroupAccountType;
-    private RadioButton radioChecking;
-    private RadioButton radioCD;
-    private RadioButton radioLoan;
-    private FinanceDataSource financeDataSource;
-    private FinanceDBHelper dbHelper;
-    private SQLiteDatabase db;
     private static final String PREFS_NAME = "FinancePrefs";
     private static final String KEY_ACCOUNT_TYPE = "lastSelectedAccountType";
 
-
-
+    private RadioGroup radioGroupAccountType;
+    private EditText etAccountNumber, etBalance, etInterestRate, etPayment;
+    private Button btnSave, btnCancel, btnHome;
+    private FinanceDataSource financeDataSource;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_account_entry);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-            // Initialize UI elements
-            radioGroupAccountType = findViewById(R.id.radioGroupAccountType);
-            etAccountNumber = findViewById(R.id.etAccountNumber);
-            etBalance = findViewById(R.id.etBalance);
-            etInterestRate = findViewById(R.id.etInterestRate);
-            etPayment = findViewById(R.id.etPayment);
-            btnSave = findViewById(R.id.btnSave);
-            btnCancel = findViewById(R.id.btnCancel);
 
-            // Initialize database
-            financeDataSource = new FinanceDataSource(this);
-            financeDataSource.open();
+        // Initialize UI elements
+        radioGroupAccountType = findViewById(R.id.radioGroupAccountType);
+        etAccountNumber = findViewById(R.id.etAccountNumber);
+        etBalance = findViewById(R.id.etBalance);
+        etInterestRate = findViewById(R.id.etInterestRate);
+        etPayment = findViewById(R.id.etPayment);
+        btnSave = findViewById(R.id.btnSave);
+        btnCancel = findViewById(R.id.btnCancel);
+        btnHome = findViewById(R.id.btnHome);
 
-            // Restore last selected account type
-            loadAccountTypePreference();
+        // Initialize database
+        financeDataSource = new FinanceDataSource(this);
+        financeDataSource.open();
 
-            // Handle account type selection
-            radioGroupAccountType.setOnCheckedChangeListener((group, checkedId) -> {
-                saveAccountTypePreference(checkedId); // Save user selection
-                if (checkedId == R.id.radioCD) {
-                    etInterestRate.setVisibility(View.VISIBLE);
-                    etPayment.setVisibility(View.GONE);
-                } else if (checkedId == R.id.radioLoan) {
-                    etInterestRate.setVisibility(View.VISIBLE);
-                    etPayment.setVisibility(View.VISIBLE);
-                } else if (checkedId == R.id.radioChecking) {
-                    etInterestRate.setVisibility(View.GONE);
-                    etPayment.setVisibility(View.GONE);
-                }
-            });
-            // Save button logic
-            btnSave.setOnClickListener(v -> saveAccount());
+        // Initialize SharedPreferences
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        loadAccountTypePreference();
 
-            // Cancel button logic
-            btnCancel.setOnClickListener(v -> clearFields());
+        // Handle account type selection
+        radioGroupAccountType.setOnCheckedChangeListener((group, checkedId) -> {
+            saveAccountTypePreference(checkedId); // Save user selection
+            updateFieldVisibility(checkedId);
+        });
 
-        }
+        // Save button logic
+        btnSave.setOnClickListener(v -> {
+            if (radioGroupAccountType.getCheckedRadioButtonId() == -1) {
+                Toast.makeText(this, "Please select an account type!", Toast.LENGTH_SHORT).show();
+            } else {
+                saveAccount();
+            }
+        });
 
-        private void saveAccount() {
+        // Cancel button logic
+        btnCancel.setOnClickListener(v -> clearFields());
+
+        // Home button logic
+        btnHome.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
+    }
+
+    private void updateFieldVisibility(int checkedId) {
+        runOnUiThread(() -> {
+            if (checkedId == R.id.radioCD) {
+                etInterestRate.setVisibility(View.VISIBLE);
+                etPayment.setVisibility(View.GONE);
+            } else if (checkedId == R.id.radioLoan) {
+                etInterestRate.setVisibility(View.VISIBLE);
+                etPayment.setVisibility(View.VISIBLE);
+            } else if (checkedId == R.id.radioChecking) {
+                etInterestRate.setVisibility(View.GONE);
+                etPayment.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void saveAccount() {
+        try {
             int accountNumber = Integer.parseInt(etAccountNumber.getText().toString());
             double balance = Double.parseDouble(etBalance.getText().toString());
             boolean success = false;
@@ -91,57 +95,48 @@ public class AccountEntryActivity extends AppCompatActivity {
             int selectedId = radioGroupAccountType.getCheckedRadioButtonId();
             if (selectedId == R.id.radioCD) {
                 double interestRate = Double.parseDouble(etInterestRate.getText().toString());
-                CDaccount cdAccount = new CDaccount(accountNumber, balance, interestRate);
-                success = financeDataSource.insertCDAccount(cdAccount);
+                success = financeDataSource.insertCDAccount(new CDaccount(accountNumber, balance, interestRate));
             } else if (selectedId == R.id.radioLoan) {
                 double interestRate = Double.parseDouble(etInterestRate.getText().toString());
                 double payment = Double.parseDouble(etPayment.getText().toString());
-                LoanAccount loanAccount = new LoanAccount(accountNumber, balance, interestRate, payment);
-                success = financeDataSource.insertLoanAccount(loanAccount);
-            } else if (selectedId == R.id.radioChecking) {
-                CheckingAccount checkingAccount = new CheckingAccount(accountNumber, balance);
-                success = financeDataSource.insertCheckingAccount(checkingAccount);
-            }
-
-            if (success) {
-                Toast.makeText(this, "Account saved successfully!", Toast.LENGTH_SHORT).show();
-                clearFields();
+                success = financeDataSource.insertLoanAccount(new LoanAccount(accountNumber, balance, interestRate, payment));
             } else {
-                Toast.makeText(this, "Error saving account!", Toast.LENGTH_SHORT).show();
+                success = financeDataSource.insertCheckingAccount(new CheckingAccount(accountNumber, balance));
             }
-        }
 
-        private void clearFields() {
-            etAccountNumber.setText("");
-            etBalance.setText("");
-            etInterestRate.setText("");
-            etPayment.setText("");
-            etInterestRate.setVisibility(View.GONE);
-            etPayment.setVisibility(View.GONE);
-            radioGroupAccountType.clearCheck();
-        }
+            Toast.makeText(this, success ? "Account saved successfully!" : "Error saving account!", Toast.LENGTH_SHORT).show();
+            if (success) clearFields();
 
-        // Save selected account type to SharedPreferences
-        private void saveAccountTypePreference(int selectedId) {
-            SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putInt(KEY_ACCOUNT_TYPE, selectedId);
-            editor.apply();
+        } catch (Exception e) {
+            Toast.makeText(this, "Invalid input! Please check your entries.", Toast.LENGTH_SHORT).show();
         }
+    }
 
-        // Load and set the last selected account type
-        private void loadAccountTypePreference() {
-            SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            int savedAccountType = preferences.getInt(KEY_ACCOUNT_TYPE, -1);
-            if (savedAccountType != -1) {
-                radioGroupAccountType.check(savedAccountType);
-            }
-        }
+    private void clearFields() {
+        etAccountNumber.setText("");
+        etBalance.setText("");
+        etInterestRate.setText("");
+        etPayment.setText("");
+        etInterestRate.setVisibility(View.GONE);
+        etPayment.setVisibility(View.GONE);
+        radioGroupAccountType.clearCheck();
+    }
 
-        @Override
-        protected void onDestroy() {
-            super.onDestroy();
-            financeDataSource.close();
+    private void saveAccountTypePreference(int selectedId) {
+        sharedPreferences.edit().putInt(KEY_ACCOUNT_TYPE, selectedId).apply();
+    }
+
+    private void loadAccountTypePreference() {
+        int savedAccountType = sharedPreferences.getInt(KEY_ACCOUNT_TYPE, -1);
+        if (savedAccountType != -1) {
+            radioGroupAccountType.check(savedAccountType);
+            updateFieldVisibility(savedAccountType);
         }
-}
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        financeDataSource.close();
+    }
 }
